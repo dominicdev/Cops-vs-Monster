@@ -847,7 +847,7 @@ local y1 = locy
         group[2]:insert(dead[number_.deadmon])
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
         audio.play(external.sfx.splat)
-        
+        number_.mobster = number_.mobster - 1
     elseif object == "masters" then
         
         number_.score = number_.score + 100
@@ -860,11 +860,9 @@ local y1 = locy
         group[2]:insert(dead[number_.deadmon])
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
         number_.mastermon = number_.mastermon - 1
-         
         audio.play(external.sfx.splat)
-        
     end
-game_.killed = game_.killed + 1
+
 end
 
 function functions.striker (locx,locy)
@@ -969,6 +967,7 @@ if event.phase == "began" then
     flash[number_.flasher].alpha = 0.5
     group[5]:insert(flash[number_.flasher])
     flash[number_.flasher]:addEventListener( "sprite", functions.spriteListener )
+    
     if hit.damage == 0 and hit.myname == "runnerers" then
         number_.score = number_.score + 50
         dead[number_.deadmon] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
@@ -978,10 +977,6 @@ if event.phase == "began" then
         dead[number_.deadmon]:play()
         group[2]:insert(dead[number_.deadmon])
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
-         
-        if number_.mobster == -1 then
-            number_.mobster = 0
-        end
         number_.mobster = number_.mobster - 1
         event.target:removeSelf() 
         event.target.myname = nil
@@ -1032,8 +1027,14 @@ if event.phase == "began" then
         audio.play(external.sfx.sound_1)
         boss.stats_ = false
         number_.bossing = number_.bossing - 1
-         game_.killed = game_.killed + 1
+        game_.killed = game_.killed + 1
         print("boss killed")
+        if number_.bossing ~= 0 then
+            timer.resume(timer_.bolsstats)
+        elseif number_.bossing == 0 then
+            bol.bolsstats = false
+        end
+        
     elseif hit.damage == 0 and hit.myname == "bigmaster" then
         
         number_.score = number_.score + 500
@@ -1334,6 +1335,7 @@ boss.locv  = math.random(1,5)
 end
 
 function functions.start()
+    
 boss.num = boss.num + 1
 boss[boss.num] = sprite.newSprite(external.spritefactory.spritealienship);
 boss[boss.num]:setReferencePoint(display.CenterReferencePoint)
@@ -1356,10 +1358,9 @@ boss.move_ = transition.to(boss[boss.num],{time = boss.time_1,y = display.conten
 boss.timer_ = timer.performWithDelay (boss.time_1,none,1)
 boss.bol_ = true
 boss.stats_ = true
-number_.bossholder = number_.bossholder - 1
-if number_.bossholder == 0 then
-    bol.bolsstats = false
-end
+    if number_.bossing ~= 0 then
+        timer.pause(timer_.bolsstats)
+    end
 end
 
 function functions.nextwave ()
@@ -1406,8 +1407,6 @@ game_.stage = game_.stage + 1
 game_.stagetemp = game_.stagetemp + 1
 end
 
-
-
 local row
 local sql
 sql = "SELECT * FROM button WHERE level="..game_.level.." AND id ="..game_.stage;
@@ -1415,11 +1414,12 @@ print(sql)
 for row in db:nrows(sql) do
 
 number_.movnum      = tonumber(row.movnum)
+number_.monsternum  = tonumber(row.monsternum)
 number_.mastermon   = tonumber(row.mastermon)
 number_.mobster     = tonumber(row.monsternum) + tonumber(row.movnum)
 number_.bignum      = tonumber(row.bignum)
 number_.bossing     = tonumber(row.bossing)
-
+number_.bossholder  = number_.bossing 
 number_.monsterleft = number_.mobster + number_.mastermon + number_.bignum  + number_.bossing
 
 print("normal# "..number_.mobster.." master# "..number_.mastermon.. " big# "..number_.bignum.." boss# "..number_.bossing )
@@ -1465,7 +1465,7 @@ elseif game_.level == 2 then
     number_.alien3spd = 3000
 end
 
-timer_.mob = timer.performWithDelay(number_.alien1spd, functions.mobstart, number_.mobster)
+timer_.mob = timer.performWithDelay(number_.alien1spd, functions.mobstart, number_.monsternum)
 bol.mobrun = true
 
 if bol.masstatus == "true" then
@@ -1703,20 +1703,20 @@ end
 
 if number_.mobster == -1 then
     number_.mobster = 0
-    native.showAlert( "Negative Normal monster", " WTF", { "OK" } )  
+   -- native.showAlert( "Negative Normal monster", " WTF", { "OK" } )  
 end 
 if number_.mastermon == -1 then
     number_.mastermon = 0
-    native.showAlert( "Negative LEVEL2 monster", " WTF", { "OK" } ) 
+   -- native.showAlert( "Negative LEVEL2 monster", " WTF", { "OK" } ) 
 end 
 
 if number_.bignum == -1 then
     number_.bignum = 0
-    native.showAlert( "Negative LEVEL3 monster", " WTF", { "OK" } ) 
+  --  native.showAlert( "Negative LEVEL3 monster", " WTF", { "OK" } ) 
 end 
 if number_.bossing == -1 then
     number_.bossing = 0
-    native.showAlert( "Negative boss monster", " WTF", { "OK" } ) 
+   -- native.showAlert( "Negative boss monster", " WTF", { "OK" } ) 
 end
 
 if game_.killed == number_.monsterleft and number_.mobster == 0 and number_.mastermon == 0 and number_.bignum == 0 and number_.bossing == 0 then
@@ -1880,6 +1880,7 @@ number_     = {
                 masdamage   = nil,
                 mastermon   = 0,
                 mobster     = nil,
+                monsternum  = nil,
                 highscore   = nil,
                 bignum      = 0,
                 bigdamage   = nil,
@@ -1977,6 +1978,7 @@ life        = {}
 params              = event.params
 
 number_.movnum      = tonumber(params.movnum)
+number_.monsternum  = tonumber(params.monsternum)
 number_.mobster     = tonumber(params.monsternum) + tonumber(params.movnum)
 number_.mastermon   = tonumber(params.mastermon)
 number_.bignum      = tonumber(params.bignum)
@@ -2031,9 +2033,6 @@ end
 
 storyboard.purgeAll()
 storyboard.removeAll() 
-timer.performWithDelay(3000,function () 
-
-print("status - "..game_.killed.." ".. number_.monsterleft.." normal# "..number_.mobster.." master# "..number_.mastermon.." bigmaster# "..number_.bignum.." movbigmaster# "..number_.bossing)end,0)
 
 if game_.stage >= 1  and game_.stage <= 5 or game_.stage >= 21  and game_.stage <= 25 then
 objects_.dark = display.newImageRect("background/lateafternoon.png",display.contentWidth,display.contentHeight+50)
@@ -2316,7 +2315,7 @@ elseif game_.level == 2 then
     number_.alien3spd = 3000
 end
 
-timer_.mob = timer.performWithDelay(number_.alien1spd, functions.mobstart, number_.mobster )
+timer_.mob = timer.performWithDelay(number_.alien1spd, functions.mobstart, number_.monsternum)
 bol.mobrun = true
 
 if bol.masstatus == "true" then
@@ -2711,11 +2710,11 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
     if event.object1.myname == "runnerers" or event.object1.myname == "car" or event.object1.myname == "masters" or event.object1.myname == "bigmaster" then
     
         if event.object1.myname == "runnerers" then
-            
+            number_.mobster = number_.mobster - 1
             if number_.mobster == -1 then
             number_.mobster = 0
             end
-            number_.mobster = number_.mobster - 1
+            
             number_.score = number_.score + 200
         elseif event.object1.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
@@ -2733,11 +2732,11 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
     elseif event.object2.myname == "runnerers" or event.object2.myname == "car" or event.object2.myname == "masters" or event.object2.myname == "bigmaster" then
         
         if event.object2.myname == "runnerers" then
-            
+            number_.mobster = number_.mobster - 1
             if number_.mobster == -1 then
             number_.mobster = 0
             end
-            number_.mobster = number_.mobster - 1
+            
             number_.score = number_.score + 200
         elseif event.object2.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
@@ -2785,8 +2784,7 @@ if ((event.object1.myname == "beam" and event.object2.myname == "runnerers") or
             event.object2.myname = nil
     end
     game_.killed = game_.killed + 1
-    
-
+ 
 end
 
 if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") or 
@@ -2796,14 +2794,13 @@ if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") o
 
     if event.object1.myname == "runnerers" or event.object1.myname == "masters" then
         explodeevent(event.object1.x,event.object1.y)
-        
+        game_.killed = game_.killed + 1
         if event.object1.myname == "runnerers" then
-            
+            number_.mobster = number_.mobster - 1
             if number_.mobster == -1 then
             number_.mobster = 0
             end
             number_.score = number_.score + 100
-            number_.mobster = number_.mobster - 1
         elseif event.object1.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
             number_.score = number_.score + 200
@@ -2828,13 +2825,13 @@ if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") o
 
     elseif event.object2.myname == "runnerers" or event.object2.myname == "masters" then
         explodeevent(event.object2.x,event.object2.y)
+        game_.killed = game_.killed + 1
         if event.object2.myname == "runnerers" then
-            
+            number_.mobster = number_.mobster - 1
             if number_.mobster == -1 then
             number_.mobster = 0
             end
             number_.score = number_.score + 100
-            number_.mobster = number_.mobster - 1
         elseif event.object2.myname == "masters" then
 
             number_.mastermon = number_.mastermon - 1

@@ -123,9 +123,9 @@ local function onSceneTouch(event)
     
         switch = event.target
         audio.play(external.sfx.clicksound)
-        
-        --adstatus.hideads ()
-        
+ 
+local function conplete ()
+    
     if switch.id == "game" then
         local option = {
                             effect  = "fade",
@@ -160,9 +160,14 @@ local function onSceneTouch(event)
        }
         storyboard.gotoScene( "luafile.howto", scenefrom )
         --adshow.callflurry("Instruction")
-    end
-     
-      --adshow.callrevmob("hide")  
+    end   
+    
+end
+transition.to(buttons.newbutton, { time= 1000, x= display.contentWidth*2, transition=easing.inOutQuad,onComplete = conplete})  
+transition.to(buttons.insbutton, { delay = 200,time=1000, x= display.contentWidth*2, transition=easing.inOutQuad}) 
+transition.to(buttons.highbutton, { delay = 100,time=1000, x= display.contentWidth*2, transition=easing.inOutQuad}) 
+transition.to(buttons.aboutbutton, { delay = 700,time=2000, alpha = 0}) 
+transition.to(buttons.storebutton, { delay = 700,time=2000, alpha = 0}) 
 end
 
 local function ExitAppss (event)

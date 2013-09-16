@@ -908,13 +908,7 @@ print(object)
         dead[number_.deadmon]:play()
         group[2]:insert(dead[number_.deadmon])
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
-        
-        if object== "mover" then
-            number_.movnum = number_.movnum - 1
-        end
-            number_.mobster = number_.mobster - 1
-        
-        
+        number_.mobster = number_.mobster - 1
         game_.killed = game_.killed + 1
         audio.play(external.sfx.splat)
     elseif object == "masters" then
@@ -963,11 +957,8 @@ if event.phase == "began" then
         dead[number_.deadmon]:play()
         group[2]:insert(dead[number_.deadmon])
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
-        if event.target.name == "mover" then
-            number_.movnum = number_.movnum - 1
-        else
-            number_.mobster = number_.mobster - 1
-        end
+        
+        number_.mobster = number_.mobster - 1
         event.target:removeSelf() 
         event.target.myname = nil
         game_.killed = game_.killed + 1
@@ -1021,6 +1012,13 @@ if event.phase == "began" then
         boss.stats_ = false
         number_.bossing = number_.bossing - 1
         game_.killed = game_.killed + 1 
+        
+        if number_.bossing ~= 0 then
+            timer.resume(timer_.bolsstats)
+        elseif number_.bossing == 0 then
+            bol.bolsstats = false
+        end
+        
     elseif hit.damage == 0 and hit.myname == "bigmaster" then
         
         number_.score = number_.score + 500
@@ -1063,7 +1061,6 @@ end
 function functions.mobstart (event)
     local mobnum_       = 2--math.random(1,4)
     number_.monster = number_.monster + 1 
-    --monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.spritemob)
     
     if mobnum_ == 1 then
         monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.alien_3)
@@ -1344,6 +1341,9 @@ boss.move_ = transition.to(boss[boss.num],{time = boss.time_1,y = display.conten
 boss.timer_ = timer.performWithDelay (boss.time_1,none,1)
 boss.bol_ = true
 boss.stats_ = true
+    if number_.bossing ~= 0 then
+        timer.pause(timer_.bosstats)
+    end
 end
 
 function functions.updatestatus (event)
@@ -1411,7 +1411,8 @@ if number_.mastermon <= (params.mastermon/2) and bol.bigrun == false then
         
     timer_.bigmas = timer.performWithDelay(3000, functions.bigmastercall, number_.bignum)
     if bol.bols == "true" then
-    timer.performWithDelay(5000, functions.start, number_.bossing)    
+    timer_.bosstats = timer.performWithDelay(5000, functions.start, number_.bossing)    
+    bol.bosstats = true
     bol.bols = "false"
     end
     
@@ -1431,7 +1432,7 @@ if number_.life == 0 and game_.over == false then
     Runtime:removeEventListener("enterFrame", functions.updatestatus)
 end
 
-if game_.killed == number_.monsterleft then
+if game_.killed == number_.monsterleft and number_.mobster == 0 and number_.mastermon == 0 and number_.bignum == 0 and number_.bossing == 0 then
     winnerscreen ()
     game_.stats = true
     Runtime:removeEventListener("enterFrame", functions.updatestatus)
@@ -1520,7 +1521,8 @@ bol         = {
                 human_2     = false,
                 fog         = false,
                 star        = false,
-                bols        = false
+                bols        = false,
+                bosstats    = false,
                 }
 text_       = {
                 barrel      = nil,
@@ -1570,6 +1572,7 @@ timer_      = {
                 movmob  = nil,
                 human   = nil,
                 human_2  = nil,
+                bosstats = nil,
                 }           
 number_     = {
                 monster     = 0,
@@ -1677,14 +1680,14 @@ life        = {}
 
 params              = event.params
 
-number_.monsterleft = params.monsternum + params.mastermon + params.bignum + params.movnum + params.bossing
-number_.totalmon    = params.monsternum + params.mastermon + params.movnum
+number_.monsterleft = tonumber(params.monsternum) + tonumber(params.mastermon) + tonumber(params.bignum) + tonumber(params.movnum) + tonumber(params.bossing)
 
-number_.mobster     = params.monsternum + params.movnum
-number_.mastermon   = params.mastermon
-number_.bignum      = params.bignum
-number_.movnum      = params.movnum
-number_.bossing     = params.bossing
+number_.mobster     = tonumber(params.monsternum) + tonumber(params.movnum)
+number_.monsternum  = tonumber(params.monsternum)
+number_.mastermon   = tonumber(params.mastermon)
+number_.bignum      = tonumber(params.bignum)
+number_.movnum      = tonumber(params.movnum)
+number_.bossing     = tonumber(params.bossing)
 
 bol.bols            = params.bossbol
 bol.masstatus       = params.masstatus
@@ -1726,7 +1729,7 @@ storyboard.purgeAll()
 storyboard.removeAll() 
 backprob = event.params
 
-print (backprob.rowid)
+
 
 if backprob.rowid >= 1  and backprob.rowid <= 5 or backprob.rowid >= 21  and backprob.rowid <= 25 then
 objects_.dark = display.newImageRect("background/lateafternoon.png",display.contentWidth,display.contentHeight+50)
@@ -1979,18 +1982,18 @@ elseif game_.level == 2 then
     number_.alien3spd = 3000
 end
 
-timer_.mob = timer.performWithDelay(number_.alien1spd, functions.mobstart, tonumber(params.monsternum))
+timer_.mob = timer.performWithDelay(number_.alien1spd, functions.mobstart, number_.monsternum)
 bol.mobrun = true
 
 if bol.masstatus == "true" then
-    timer_.master = timer.performWithDelay(number_.alien2spd, functions.masterstart, params.mastermon)
+    timer_.master = timer.performWithDelay(number_.alien2spd, functions.masterstart, number_.mastermon)
     bol.masrun = true   
     transition.to(objects_.master,{alpha = 1, time = 1500})
     text_.master.alpha = 1
 end
 
 if bol.monmovstats == "true" then
-   timer_.movmob = timer.performWithDelay(number_.alien3spd, functions.movingmonster, params.movnum)  
+   timer_.movmob = timer.performWithDelay(number_.alien3spd, functions.movingmonster, number_.movnum)  
    bol.movrun = true
 end
 
@@ -2005,12 +2008,6 @@ transition.to(objects_.carpow,{alpha = 1, time = 1500})
 transition.to(objects_.pause,{alpha = 1, time = 1500})
 transition.to(objects_.monster,{alpha = 1, time = 1500})
 transition.to(laser[number_.lasernumber],{alpha = 1, time = 1500})
-
-
-local function movingfogs ()
-bol.fog = false
-
-end
 
 if backprob.stage >= 1  and backprob.stage <= 5 or backprob.stage >= 21  and backprob.stage <= 25 then
 transition.to(objects_.dark,{alpha = 1, time = 2000})
@@ -2092,17 +2089,9 @@ local phase = event.phase
         if "moved" == phase then
             t.x = event.x - t.x0
             t.y = event.y - t.y0
-            --print(t.x.." "..display.contentWidth - 70)
         elseif "ended" == phase or "cancelled" == phase then
             display.getCurrentStage():setFocus( nil )
             t.isFocus = false
---            if t.y > (display.contentHeight - 120) then 
---            t.x = display.contentWidth - 60;
---            t.y = h_ + (h_/2) - 50;
---            elseif t.x > (display.contentWidth - 70) then
---            t.x = display.contentWidth - 60;
---            t.y = h_ + (h_/2) - 50;
---            else
             functions.striker (laser[number_.lasernumber].x,laser[number_.lasernumber].y)
             laser[number_.lasernumber]:removeSelf()
             laser[number_.lasernumber]= nil
@@ -2179,7 +2168,6 @@ explodemon[number_.exnum]:play()
 group[2]:insert(explodemon[number_.exnum])
 explodemon[number_.exnum]:addEventListener( "sprite", functions.spriteListener )
 
-print("bang")
 end
 
 function functions.collisionevent (event)
@@ -2285,18 +2273,12 @@ if ((event.object1.myname == "fence" and event.object2.myname == "runnerers") or
 
     if event.object1.myname == "runnerers" and event.phase == "began" then
         number_.fencelife = number_.fencelife - 1
-        if event.object1.name == "mover" then
-            number_.movnum = number_.movnum - 1
-        end
         event.object1:removeSelf()
         event.object1.myname = nil
         number_.mobster = number_.mobster - 1
         game_.killed = game_.killed + 1
     elseif event.object2.myname == "runnerers" and event.phase == "began" then
         number_.fencelife = number_.fencelife - 1
-        if event.object2.name == "mover" then
-            number_.movnum = number_.movnum - 1
-        end
         event.object2:removeSelf()
         event.object2.myname = nil
 
@@ -2337,9 +2319,6 @@ if ((event.object1.myname == "end" and event.object2.myname == "runnerers") or
     if event.object1.myname == "runnerers" or event.object1.myname == "masters" or event.object1.myname == "bigmaster" then
 
         if event.object1.myname == "runnerers" then
-            if event.object1.name == "mover" then
-            number_.movnum = number_.movnum - 1
-        end
             number_.mobster = number_.mobster - 1
         elseif event.object1.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
@@ -2353,9 +2332,6 @@ if ((event.object1.myname == "end" and event.object2.myname == "runnerers") or
     elseif event.object2.myname == "runnerers" or event.object2.myname == "masters" or event.object2.myname == "bigmaster" then
 
         if event.object2.myname == "runnerers" then
-            if event.object2.name == "mover" then
-            number_.movnum = number_.movnum - 1
-        end
             number_.mobster = number_.mobster - 1
         elseif event.object2.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
@@ -2384,9 +2360,6 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
     if event.object1.myname == "runnerers" or event.object1.myname == "car" or event.object1.myname == "masters" or event.object1.myname == "bigmaster" then
 
         if event.object1.myname == "runnerers" then
-            if event.object1.name == "mover" then
-            number_.movnum = number_.movnum - 1
-            end
             number_.mobster = number_.mobster - 1
             game_.killed = game_.killed + 1
             number_.score = number_.score + 200
@@ -2397,7 +2370,6 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
         elseif event.object1.myname == "bigmaster" then
             number_.bignum = number_.bignum - 1
             game_.killed = game_.killed + 1
-           --number_.score = number_.score + 300
         end
 
         event.object1:removeSelf()
@@ -2405,9 +2377,6 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
     elseif event.object2.myname == "runnerers" or event.object2.myname == "car" or event.object2.myname == "masters" or event.object2.myname == "bigmaster" then
 
         if event.object2.myname == "runnerers" then
-            if event.object2.name == "mover" then
-            number_.movnum = number_.movnum - 1
-            end
             number_.mobster = number_.mobster - 1
             game_.killed = game_.killed + 1
             number_.score = number_.score + 200
@@ -2418,7 +2387,6 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
         elseif event.object2.myname == "bigmaster" then
             number_.bignum = number_.bignum - 1
             game_.killed = game_.killed + 1
-           --number_.score = number_.score + 300
         end
 
         event.object2:removeSelf()
@@ -2441,6 +2409,24 @@ if ((event.object1.myname == "car" and event.object2.myname == "runnerers") or
     audio.play(external.sfx.sound_5)
 end
 
+if ((event.object1.myname == "beam" and event.object2.myname == "runnerers") or 
+    (event.object1.myname == "runnerers" and event.object2.myname == "beam") or
+    (event.object1.myname == "beam" and event.object2.myname == "masters") or 
+    (event.object1.myname == "masters" and event.object2.myname == "beam")) then
+    
+    if event.object1.myname == "masters" or event.object1.myname == "runnerers" then
+            functions.bombhit(event.object1.myname,event.object1.x,event.object1.y)
+            event.object1:removeSelf()
+            event.object1.myname = nil
+    elseif event.object2.myname == "runnerers" or event.object2.myname == "masters" then
+            functions.bombhit(event.object2.myname,event.object2.x,event.object2.y)
+            event.object2:removeSelf()
+            event.object2.myname = nil
+    end
+    game_.killed = game_.killed + 1
+ 
+end
+
 if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") or 
     (event.object1.myname == "runnerers" and event.object2.myname == "barrel")or
     (event.object1.myname == "barrel" and event.object2.myname == "masters") or 
@@ -2450,9 +2436,6 @@ if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") o
         
         explodeevent(event.object1.x,event.object1.y)
         if event.object1.myname == "runnerers" then
-            if event.object1.name == "mover" then
-            number_.movnum = number_.movnum - 1
-            end
             number_.mobster = number_.mobster - 1
             number_.score = number_.score + 100
         elseif event.object1.myname == "masters" then
@@ -2481,9 +2464,9 @@ if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") o
         explodeevent(event.object2.x,event.object2.y)
         if event.object2.myname == "runnerers" then
 
-            if event.object2.name == "mover" then
-            number_.movnum = number_.movnum - 1
-            end
+--            if event.object2.name == "mover" then
+--            number_.movnum = number_.movnum - 1
+--            end
             number_.mobster = number_.mobster - 1
             number_.score = number_.score + 100
         elseif event.object2.myname == "masters" then
