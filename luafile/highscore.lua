@@ -1,11 +1,5 @@
-
-local storyboard    = require( "storyboard" )
-local adshow        = require "luafile.adshow"
-local widget        = require "widget"
-local sqlite3       = require "sqlite3"
-local sfx           = require "luafile.sfx";
-local sprite        = require "sprite";
-local spritefactory = require "luafile.spritefactory";
+local external   = require "luafile.external"
+local storyboard    = require "storyboard" 
 local scene      = storyboard.newScene()
 local fullnamet = {};
 local scoret = {};
@@ -22,7 +16,6 @@ local h = display.contentHeight / 2
 local deletebutton
 local deleterecord
 local screenGroup
-local onKeyEvent
 local scroller_1
 local backbutton
 local background
@@ -43,7 +36,7 @@ local sql
 
 local function onSceneTouch(event)
     if event.phase == "ended" or event.keyName == "back" and event.phase == "down" then
-         audio.play(sfx.clicksound)
+         audio.play(external.sfx.clicksound)
         local scenefrom = 
                     {
                         effect = "fade",
@@ -79,7 +72,7 @@ group = {
 local devname = system.getInfo( "model" )
 
 local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
-db = sqlite3.open( path ) 
+db = external.sqlite3.open( path ) 
 if display.contentHeight > 960 then
     numbers = display.contentHeight -1200
     numbers_ =  display.contentHeight - 580 
@@ -92,7 +85,7 @@ else
    height_ = 460
 end
 
-scroller = widget.newScrollView
+scroller = external.widget.newScrollView
             {
                 width = 560,
                 height = display.contentHeight*.4791666666666667,
@@ -105,7 +98,7 @@ scroller.x = display.contentWidth / 2
 scroller.y = display.contentHeight / 2 + 50
 group.surgroup:insert(scroller)
 
-scroller_1 = widget.newScrollView
+scroller_1 = external.widget.newScrollView
             {
                 width = 560,
                 height = display.contentHeight*.4791666666666667,
@@ -122,7 +115,7 @@ function deleterecord (event)
 
 local function onComplete(event)
         if "clicked" == event.action then
-            audio.play(sfx.clicksound)
+            audio.play(external.sfx.clicksound)
             local t = event.index
             if t == 1 then
                 
@@ -153,7 +146,7 @@ local function onComplete(event)
         end
     end
 local alert = native.showAlert( "Delete All Records", "Are You Sure?", { "YES", "NO" }, onComplete )
-audio.play(sfx.clicksound)
+audio.play(external.sfx.clicksound)
 end
 local highscoresur   = display.newEmbossedText("SURVIVAL", 10, 10, "Dimitri", 70,{ 0, 0, 0, 255 });
 highscoresur:setReferencePoint(display.CenterReferencePoint);
@@ -240,7 +233,7 @@ rowplace = rowplace + 170
 
 end
 
-backbutton = widget.newButton
+backbutton = external.widget.newButton
         {
         defaultFile = "button/orange/home.png",
         overFile    = "button/orange/hometap.png",
@@ -254,7 +247,7 @@ backbutton = widget.newButton
  backbutton.alpha = 0
 screenGroup:insert(backbutton);
 
-deletebutton = widget.newButton
+deletebutton = external.widget.newButton
         {
          defaultFile    = "button/woodbutton/deleteallbtn.png",
          overFile       = "button/woodbutton/deleteallbtnover.png",
@@ -278,7 +271,7 @@ function easing_1 (event)
             local function changeoil (object)
             object:removeSelf()
             object = nil  
-            surbutton = widget.newButton
+            surbutton = external.widget.newButton
                     {
                     defaultFile = "button/orange/left.png",
                     overFile    = "button/orange/lefttap.png",
@@ -302,7 +295,7 @@ function easing_1 (event)
             local function changeoil (object)
             object:removeSelf()
             object = nil
-            surbutton = widget.newButton
+            surbutton = external.widget.newButton
                     {
                     defaultFile = "button/orange/right.png",
                     overFile    = "button/orange/righttap.png",
@@ -322,7 +315,7 @@ function easing_1 (event)
         end  
     end
 end
-surbutton = widget.newButton
+surbutton = external.widget.newButton
         {
         defaultFile = "button/orange/right.png",
         overFile    = "button/orange/righttap.png",

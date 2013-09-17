@@ -1,9 +1,5 @@
 local storyboard = require "storyboard"
 local external   = require "luafile.external"
---local adshow     = require "luafile.adshow"
---local widget     = require "widget"
---local sfx        = require "luafile.sfx"
---local sqlite3    = require "sqlite3"
 local scene      = storyboard.newScene()
 local w_         = display.contentWidth / 2
 local h_         = display.contentHeight / 2 
@@ -331,9 +327,9 @@ object_:insert(button.back)
 external.adshow.calltapfortap("show")
 
 timer.performWithDelay( 1000, function() 
-    if numvolume.scenename == "mainrestart" or numvolume.scenename == "buymenu"  then
-    external.adshow.loading("hide")  
-    end
+if numvolume.scenename == "mainrestart" or numvolume.scenename == "buymenu"  then
+external.adshow.loading("hide")  
+end
 end,1)
 
 group:insert(object_)

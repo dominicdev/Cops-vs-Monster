@@ -1,13 +1,8 @@
 
 display.setStatusBar(display.HiddenStatusBar)
-local widget = require "widget"
-local sprite = require("sprite")
-local physics = require("physics")
-local storyboard = require "storyboard"
-local adshow = require "luafile.adshow"
-local spritefactory = require "luafile.spritefactory";
-local sfx   =   require "luafile.sfx"
-local scene = storyboard.newScene()
+local external      = require "luafile.external"
+local storyboard    = require "storyboard"
+local scene         = storyboard.newScene()
 local h = display.contentHeight / 2
 local w = display.contentWidth / 2
 local controller = {}
@@ -17,7 +12,6 @@ local mobrun = {}
 local howto = {}
 local group = {}
 local human = {}
-local numhuman = 0
 local dis = {}
 local cal = {}
 local mobcount = 0
@@ -25,18 +19,16 @@ local buttonnext
 local backbutton
 local spriteListener
 local finger 
-local flash
 local dead = {}
 local deadnumber = 0
 local bg
 local scenefrom
-local scroller
-
+local functions = {}
 local function onSceneTouch(event)
     local switch = event.target
-    audio.play(sfx.clicksound)
+    audio.play(external.sfx.clicksound)
     if switch.id == "back" then
-         audio.play(sfx.clicksound)
+         audio.play(external.sfx.clicksound)
         local scenefrom = {
                             effect  = "fade",
                             time    = 500,
@@ -63,16 +55,16 @@ bg.x = w
 bg.y = h
 group[1]:insert(bg)
 
-function none (event)
+function functions.none (event)
     
     
 end
 
-Runtime:addEventListener( "key", none );
+Runtime:addEventListener( "key", functions.none );
 end
 
 function scene:enterScene( event )
-physics.start()
+external.physics.start()
 --adshow.calladmob("show")
 
 scenefrom = event.params
@@ -80,7 +72,7 @@ scenefrom = event.params
 storyboard.purgeAll()
 storyboard.removeAll()
 
-physics.setGravity(0,1.5)
+external.physics.setGravity(0,1.5)
 h = display.contentHeight / 2
 w = display.contentWidth / 2
 deadnumber = 0
@@ -98,7 +90,7 @@ finger = display.newImageRect("items/finger.png", 62, 83)
 finger:setReferencePoint(display.CenterReferencePoint)
 finger.x = w - w*.5
 finger.y = h + 280
-physics.addBody(finger,"static" ,{density = 0.1, bounce = 0,firction = 0})
+external.physics.addBody(finger,"static" ,{density = 0.1, bounce = 0,firction = 0})
 finger.alpha = 0
 finger:scale( 2, 2)
 group[3]:insert(finger)
@@ -127,7 +119,7 @@ local rect_ = display.newRect(0,0, display.contentWidth, 10)
 rect_:setReferencePoint(display.CenterReferencePoint)
 rect_.x = display.contentWidth / 2
 rect_.y = display.contentHeight - 50
-physics.addBody(rect_,"static" ,{density = 0.1, bounce = 0,firction = 0})
+external.physics.addBody(rect_,"static" ,{density = 0.1, bounce = 0,firction = 0})
 rect_.myName = "flames"
 group[3]:insert(rect_)
 rect_.alpha = 0
@@ -136,7 +128,7 @@ function spriteListener (event)
     
     if event.phase == "end" then   
     event.sprite:removeSelf()
-    howto[3] = timer.performWithDelay(500, mobmoving, 1)
+    howto[3] = timer.performWithDelay(500, functions.mobmoving, 1)
     controller[2] = true  
     end
     
@@ -147,7 +139,7 @@ end
     local x1 = hit.x
     local y1 = hit.y
     deadnumber = deadnumber + 1
-    dead[deadnumber] = sprite.newSprite(spritefactory.spritedeadmob_)
+    dead[deadnumber] = external.sprite.newSprite(external.spritefactory.spritedeadmob_)
     
     dead[deadnumber].x = x1
     dead[deadnumber].y = y1
@@ -170,16 +162,16 @@ end
 end
 
 local function fingerback (fingers)
-audio.play(sfx.sound_2)
+audio.play(external.sfx.sound_2)
 transition.to(fingers,{x = w - w*.5,y = h + 280, time = 500})
 end
 
-function mobmoving (event)
+function functions.mobmoving (event)
     
 controller[4] = false
 local mobnum       = 1--math.random(1,4)
 mobcount           = mobcount + 1
-mobrun[mobcount]   = sprite.newSprite(spritefactory.alien_2)
+mobrun[mobcount]   = external.sprite.newSprite(external.spritefactory.alien_2)
 mobrun[mobcount].y = -10
 mobrun[mobcount].x = w - w*.5
 
@@ -208,7 +200,7 @@ elseif mobnum == 4 then
 
 end
 
-physics.addBody(mobrun[mobcount],"static" ,{density = 0.1, bounce = 0,firction = 0})
+external.physics.addBody(mobrun[mobcount],"static" ,{density = 0.1, bounce = 0,firction = 0})
 howto[1] = transition.to(mobrun[mobcount],{y = h - 100, time = 1500, onComplete = deadmobs})
 group[2]:insert(mobrun[mobcount])
 finger.alpha = 1
@@ -217,7 +209,7 @@ howto[2] = transition.to(finger,{x = mobrun[mobcount].x + 10, y = h - 30, time =
 controller[1] = true  
 end
 
-backbutton = widget.newButton
+backbutton = external.widget.newButton
     {
         defaultFile     = "button/orange/home.png",
         overFile        = "button/orange/hometap.png",
@@ -233,7 +225,7 @@ backbutton.alpha = 0
 transition.to(backbutton,{alpha = 1,time = 600})
 group[3]:insert(backbutton)
 
-buttonnext = widget.newButton
+buttonnext = external.widget.newButton
     {
         defaultFile     = "button/orange/right.png",
         overFile        = "button/orange/righttap.png",
@@ -254,10 +246,10 @@ group[1]:insert(group[3])
 group[1]:insert(group[5])
 group[1]:insert(group[4])
 
-howto[4] = timer.performWithDelay(3000, mobmoving, 1)
+howto[4] = timer.performWithDelay(3000, functions.mobmoving, 1)
 controller[4] = true
 
-function onKeyEvent( event )
+function functions.onKeyEvent( event )
         if event.keyName == "back" and event.phase == "down" then 
             local scenefrom = {
                                     effect  = "slideUp",
@@ -269,12 +261,12 @@ function onKeyEvent( event )
                }
                 storyboard.gotoScene( "luafile.menu",scenefrom)
                 --adshow.calladmob("hide")
-                adshow.loading()
+                external.adshow.loading()
                 return true
         end 
 end
 
-Runtime:addEventListener( "key", onKeyEvent );
+Runtime:addEventListener( "key", functions.onKeyEvent );
 timer.performWithDelay(1000, function ()
 --adshow.loading("hide") 
 end, 1)
@@ -296,8 +288,8 @@ if controller[4] == true then
     timer.cancel(howto[4]) 
 end
 
-Runtime:removeEventListener( "key", onKeyEvent );
-Runtime:removeEventListener( "key", none );
+Runtime:removeEventListener( "key", functions.onKeyEvent );
+Runtime:removeEventListener( "key", functions.none );
 group[3]:removeSelf()
 group[3] = nil
 group[4]:removeSelf()
