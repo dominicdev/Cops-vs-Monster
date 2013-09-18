@@ -36,7 +36,7 @@ storyboard.purgeScene("luafile.game")
 storyboard.removeAll()
 local numvolume = event.params
 
-local path = system.pathForFile("records.sqlite", system.ResourceDirectory )
+local path = system.pathForFile("records.db", system.DocumentsDirectory )
 db = sqlite3.open( path ) 
 --print(path)
 

@@ -78,7 +78,6 @@ function functions.onSceneTouch (event)
             time = 500,
             params = 
                 {
-                 
                     name        = event.target.id,
                     stage       = params.stage,
                     soundv      = params.soundv,
@@ -848,6 +847,7 @@ local y1 = locy
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
         audio.play(external.sfx.splat)
         number_.mobster = number_.mobster - 1
+        
     elseif object == "masters" then
         
         number_.score = number_.score + 100
@@ -977,6 +977,12 @@ if event.phase == "began" then
         dead[number_.deadmon]:play()
         group[2]:insert(dead[number_.deadmon])
         dead[number_.deadmon]:addEventListener( "sprite", functions.spriteListener )
+        if hit.name == "mover" then
+            number_.movnum = number_.movnum - 1
+            if  number_.movnum ~= 0 then
+                timer.resume(timer_.movmob)
+            end
+        end
         number_.mobster = number_.mobster - 1
         event.target:removeSelf() 
         event.target.myname = nil
@@ -1075,7 +1081,6 @@ end
 function functions.mobstart (event)
     local mobnum_       = 2--math.random(1,4)
     number_.monster = number_.monster + 1 
-    --monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.spritemob)
     
     if mobnum_ == 1 then
         monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.alien_3)
@@ -1103,8 +1108,19 @@ function functions.mobstart (event)
         monsters[number_.monster].id = "runner 4"   
 
     end
-monsters[number_.monster].y = -50
-monsters[number_.monster].x = (math.random(50,display.contentWidth - 50))
+monsters[number_.monster]:setReferencePoint(display.CenterReferencePoint);
+monsters[number_.monster].y = -monsters[number_.monster].height
+local locationx = math.random(1,4)
+if locationx == 1 then
+    monsters[number_.monster].x = (display.contentWidth/2) - (display.contentWidth*0.25) + monsters[number_.monster].width 
+elseif locationx == 2 then    
+    monsters[number_.monster].x = monsters[number_.monster].width
+elseif locationx == 3 then
+    monsters[number_.monster].x = (display.contentWidth/2) + (display.contentWidth*0.25) - monsters[number_.monster].width
+elseif locationx == 4 then    
+    monsters[number_.monster].x = display.contentWidth - monsters[number_.monster].width
+end
+
 monsters[number_.monster].damage = number_.damage  
 external.physics.addBody(monsters[number_.monster] ,{density = 0, bounce = 0,firction = 0})
 monsters[number_.monster].isFixedRotation = true
@@ -1117,23 +1133,19 @@ end
 
 function functions.masterstart (event)
     
-    local mobnum_       = 1--math.random(1,2)
-    number_.monster = number_.monster + 1 
-    monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.alien_1)
-    monsters[number_.monster].y = -80
-    monsters[number_.monster].x = (math.random(50,display.contentWidth - 50))
-    
-    if mobnum_ == 1 then
-
-        monsters[number_.monster]:prepare("alien_1")  
-        monsters[number_.monster]:play()
-        
-    elseif mobnum_ == 2 then
-
-        monsters[number_.monster]:prepare("master_2")  
-        monsters[number_.monster]:play() 
-  
-    end
+local mobnum_       = 1--math.random(1,2)
+number_.monster = number_.monster + 1 
+monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.alien_1)
+monsters[number_.monster]:setReferencePoint(display.CenterReferencePoint);
+monsters[number_.monster].y = -monsters[number_.monster].height
+local locationx_ = math.random(1,3)
+if locationx_ == 1 then
+    monsters[number_.monster].x = display.contentWidth - monsters[number_.monster].width*2
+elseif locationx_ == 2 then    
+    monsters[number_.monster].x = monsters[number_.monster].width*2
+elseif locationx_ == 3 then
+    monsters[number_.monster].x = (display.contentWidth/2) 
+end
 monsters[number_.monster].id = "master" 
 monsters[number_.monster].damage = number_.masdamage 
 external.physics.addBody(monsters[number_.monster] ,{density = 0, bounce = 0,firction = 0})
@@ -1267,7 +1279,9 @@ game_.movingobject = monsters[number_.monster]
         trans.timer_1 = timer.performWithDelay(1500, none, 1)
         bol.top_1 = true    
     end
-
+if  number_.movnum ~= 0 then
+    timer.pause(timer_.movmob)
+end
 end
 
 function functions.firingboss (xloc,yloc)
@@ -1392,7 +1406,7 @@ for i = 1, #monsters do
     end
 end    
     
-local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
+local path = system.pathForFile("records.db",system.DocumentsDirectory  )
 db = external.sqlite3.open(path) 
 if game_.stage == 20 and game_.level == 1 then
 game_.level = game_.level + 1  
@@ -1489,7 +1503,7 @@ end
     game_.stats = false
 end
 
-text_.count:setText("Wave - "..game_.stagetemp.." level -"..game_.leveltemp)
+text_.count:setText(game_.leveltemp.." - "..game_.stagetemp)
 text_.count:setReferencePoint(display.CenterReferencePoint);
 text_.count.x = w_ ;
 transition.to(text_.count,{alpha = 1,time = 1000})    
@@ -1673,7 +1687,7 @@ if number_.movnum == 0 and bol.movrun == true then
     timer.cancel(timer_.movmob)
 end
 
-if number_.mastermon <= (params.mastermon/2) and bol.bigrun == false then
+if number_.mobster <= (number_.holder*.90) and bol.bigrun == false then
     
     if number_.bignum ~= 0 then
         
@@ -1691,7 +1705,7 @@ if number_.mastermon <= (params.mastermon/2) and bol.bigrun == false then
     audio.fade({channel=19, time=3000, volume=0.5})
     end
     bol.bigrun = true
-    timer_.human = timer.performWithDelay(5000, functions.helphuman, 3)
+    timer_.human = timer.performWithDelay(10000, functions.helphuman, 3)
     bol.human = true
 end
 
@@ -1899,6 +1913,7 @@ number_     = {
                 bossing     = 0,
                 lvl_1       = nil,
                 bossholder  = nil,
+                holder      = 0,
                 }
 game_       = {
                 pause   = true,
@@ -1983,6 +1998,7 @@ number_.mobster     = tonumber(params.monsternum) + tonumber(params.movnum)
 number_.mastermon   = tonumber(params.mastermon)
 number_.bignum      = tonumber(params.bignum)
 number_.bossing     = tonumber(params.bossing)
+number_.holder      = number_.mobster 
 
 number_.monsterleft = number_.mobster + params.mastermon + params.bignum + params.bossing
 number_.totalmon    = params.monsternum + params.mastermon + params.movnum
@@ -2001,8 +2017,6 @@ number_.highscore   = params.highscore
 game_.level         = params.level
 game_.stage         = params.stage
 
-game_.stage         = 39
-game_.level         = 2
 game_.stagetemp     = game_.stage
 game_.leveltemp     = game_.level 
 
@@ -2670,6 +2684,12 @@ if ((event.object1.myname == "end" and event.object2.myname == "runnerers") or
 
         if event.object1.myname == "runnerers" then
             number_.mobster = number_.mobster - 1
+            if event.object1.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
+            end
         elseif event.object1.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
         elseif event.object1.myname == "bigmaster" then
@@ -2683,6 +2703,12 @@ if ((event.object1.myname == "end" and event.object2.myname == "runnerers") or
 
         if event.object2.myname == "runnerers" then
             number_.mobster = number_.mobster - 1
+            if event.object2.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
+            end
         elseif event.object2.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
         elseif event.object2.myname == "bigmaster" then
@@ -2714,7 +2740,12 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
             if number_.mobster == -1 then
             number_.mobster = 0
             end
-            
+            if event.object1.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
+            end
             number_.score = number_.score + 200
         elseif event.object1.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
@@ -2736,7 +2767,12 @@ if ((event.object1.myname == "sides" and event.object2.myname == "runnerers") or
             if number_.mobster == -1 then
             number_.mobster = 0
             end
-            
+            if event.object2.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
+            end
             number_.score = number_.score + 200
         elseif event.object2.myname == "masters" then
             number_.mastermon = number_.mastermon - 1
@@ -2776,9 +2812,21 @@ if ((event.object1.myname == "beam" and event.object2.myname == "runnerers") or
     
     if event.object1.myname == "masters" or event.object1.myname == "runnerers" then
             functions.bombhit(event.object1.myname,event.object1.x,event.object1.y)
+            if event.object1.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
+            end
             event.object1:removeSelf()
             event.object1.myname = nil
-    elseif event.object2.myname == "runnerers" or event.object2.myname == "masters" then
+        elseif event.object2.myname == "runnerers" or event.object2.myname == "masters" then
+            if event.object1.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
+            end
             functions.bombhit(event.object2.myname,event.object2.x,event.object2.y)
             event.object2:removeSelf()
             event.object2.myname = nil
@@ -2799,6 +2847,12 @@ if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") o
             number_.mobster = number_.mobster - 1
             if number_.mobster == -1 then
             number_.mobster = 0
+            end
+            if event.object1.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
             end
             number_.score = number_.score + 100
         elseif event.object1.myname == "masters" then
@@ -2830,6 +2884,12 @@ if ((event.object1.myname == "barrel" and event.object2.myname == "runnerers") o
             number_.mobster = number_.mobster - 1
             if number_.mobster == -1 then
             number_.mobster = 0
+            end
+            if event.object2.name == "mover" then
+                number_.movnum = number_.movnum - 1
+                if  number_.movnum ~= 0 then
+                    timer.resume(timer_.movmob)
+                end
             end
             number_.score = number_.score + 100
         elseif event.object2.myname == "masters" then
@@ -3033,7 +3093,7 @@ function functions.taptutorial(event)
                      count_ = count_ + 1   
                     end,4)
 
-                    local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
+                    local path = system.pathForFile("records.db",system.DocumentsDirectory  )
                     db = sqlite3.open( path )  
                     local tablesave_1 = [[UPDATE button SET tutorial =']]..game_.tutorial..[[' WHERE id =]]..1
                     db:exec( tablesave_1) 
@@ -3055,6 +3115,7 @@ fing = true
 end 
 
 local tappings = false
+
 function functions.fingermoving (objecter_)
 texttap:setText("TAP TO KILL THE ALIEN")
 texttap:setReferencePoint(display.CenterReferencePoint);
@@ -3068,6 +3129,7 @@ fing = false
 fingermove = transition.to(finger,{x = monsters[number_.monster].x+20 ,y = monsters[number_.monster].y + 100,delay = 500,time = 500,onComplete = functions.fingermoving_}) 
 fing = true
 end
+
 local function starttutorial_ (event)
     
 if event.phase == "began" then

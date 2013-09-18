@@ -20,7 +20,7 @@ local onTouched_
 local function onSceneTouch(event)
 switch = event.targe
 -- open SQLite database, if it doesn't exist, create database
-local path = system.pathForFile("records.sqlite", system.ResourceDirectory )
+local path = system.pathForFile("records.db", system.DocumentsDirectory )
 db = sqlite3.open( path ) 
 --print(path)
 

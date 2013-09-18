@@ -71,7 +71,7 @@ group = {
         }
 local devname = system.getInfo( "model" )
 
-local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
+local path = system.pathForFile("records.db",system.DocumentsDirectory  )
 db = external.sqlite3.open( path ) 
 if display.contentHeight > 960 then
     numbers = display.contentHeight -1200

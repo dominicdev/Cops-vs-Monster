@@ -90,7 +90,7 @@ local function onSceneTouch(event)
         --adstatus.hideads ()
     if switch.id == "survival" and switch.stats == "unlocked" and event.phase == "ended" then
         
-        local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
+        local path = system.pathForFile("records.db",system.DocumentsDirectory  )
         db = external.sqlite3.open( path ) 
         level = 1
         count = 0
@@ -232,7 +232,7 @@ storyboard.purgeAll()
 storyboard.removeAll() 
 numvolume = event.params
 local y_ = 0
-local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
+local path = system.pathForFile("records.db",system.DocumentsDirectory  )
 db = external.sqlite3.open( path ) 
 
 scenestats = true

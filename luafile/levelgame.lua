@@ -45,7 +45,6 @@ end
 end
 
 local function shakingeffect ()
-    
 local stage = display.getCurrentStage()
 local originalX = stage.x
 local originalY = stage.y
@@ -57,16 +56,10 @@ local originalTrans
 local shakeTime = 80
 local shakeRange = {min = 1, max = 3}
 local endShake   	
-
 moveRightFunction = function(event) rightTrans = transition.to(stage, {x = math.random(shakeRange.min,shakeRange.max), y = math.random(shakeRange.min, shakeRange.max), time = shakeTime, onComplete=moveLeftFunction}); end 
- 
 moveLeftFunction = function(event) leftTrans = transition.to(stage, {x = math.random(shakeRange.min,shakeRange.max) * -1, y = math.random(shakeRange.min,shakeRange.max) * -1, time = shakeTime, onComplete=endShake});  end 
-
 moveRightFunction();
-
-endShake = function(event) originalTrans = transition.to(stage, {x = originalX, y = originalY, time = 100}); end
-
-    
+endShake = function(event) originalTrans = transition.to(stage, {x = originalX, y = originalY, time = 100}); end   
 end
 
 local function onSceneTouch (event)
@@ -107,7 +100,6 @@ local function onSceneTouch (event)
                     barrel      = params.barrel,
                     bossbol     = params.bossbol,
                     bossing     = params.bossing,
-                    
                 }
             }
             storyboard.gotoScene( "luafile.mainrestart",option)
@@ -511,9 +503,7 @@ local function pauseall (event)
             external.physics.pause()
             audio.pause()
             objects_.pause:removeSelf()
-            
             Runtime:removeEventListener("enterFrame", functions.updatestatus)
-            
             objects_.pause = external.widget.newButton   
                 {
                     defaultFile     = "button/orange/pausetap.png",
@@ -571,7 +561,6 @@ local function pauseall (event)
                 end  
             end
             if game_.killed ~= number_.monsterleft then
-                
                 if bol.mobrun == true then
                     timer.pause(timer_.mob)
                 end
@@ -597,27 +586,25 @@ local function pauseall (event)
                     end
                 end
             end
-            
             if bol.laser == true then
                 timer.pause(timer_.laser)
                 objects_.beam:pause()
             end
-            
             if bol.top_1 == true then
-                    transition.cancel(trans.top_1)
-                    trans.can_1 = timer.pause(trans.timer_1)
+                transition.cancel(trans.top_1)
+                trans.can_1 = timer.pause(trans.timer_1)
             elseif bol.top_2 == true then
-                    transition.cancel(trans.top_2)
-                    trans.can_2 = timer.pause(trans.timer_2)
+                transition.cancel(trans.top_2)
+                trans.can_2 = timer.pause(trans.timer_2)
             elseif bol.top_3 == true then
-                    transition.cancel(trans.top_3)
-                    trans.can_3 = timer.pause(trans.timer_3)
+                transition.cancel(trans.top_3)
+                trans.can_3 = timer.pause(trans.timer_3)
             elseif bol.top_4 == true then
-                    transition.cancel(trans.top_4)
-                    trans.can_4 = timer.pause(trans.timer_4)
+                transition.cancel(trans.top_4)
+                trans.can_4 = timer.pause(trans.timer_4)
             elseif bol.top_5 == true then
-                    transition.cancel(trans.top_5)
-                    trans.can_5 = timer.pause(trans.timer_5)
+                transition.cancel(trans.top_5)
+                trans.can_5 = timer.pause(trans.timer_5)
             end
             
             if boss.bol_ == true then
@@ -800,15 +787,6 @@ local function pauseall (event)
     
 end
 
-local function stopnow (event)
---audio.stop({channel = 29})
-
-objects_.beam:pause()
-objects_.beam:removeSelf()
-objects_.beam = nil
-
-end
-
 function functions.striker (locx,locy)
     
 if number_.laserP ~= 0 then
@@ -945,7 +923,6 @@ if event.phase == "began" then
     flash[number_.flasher].alpha = 0.5
     group[5]:insert(flash[number_.flasher])
     flash[number_.flasher]:addEventListener( "sprite", functions.spriteListener )
-    
     if hit.damage == 0 and hit.myname == "runnerers" then
         number_.score = number_.score + 50
         number_.deadmon = number_.deadmon + 1
@@ -964,7 +941,6 @@ if event.phase == "began" then
         game_.killed = game_.killed + 1
         audio.play(external.sfx.splat)
     elseif hit.damage == 0 and hit.myname == "masters" then
-        
         number_.score = number_.score + 100
         number_.deadmon = number_.deadmon + 1
         dead[number_.deadmon] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
@@ -1012,7 +988,6 @@ if event.phase == "began" then
         boss.stats_ = false
         number_.bossing = number_.bossing - 1
         game_.killed = game_.killed + 1 
-        
         if number_.bossing ~= 0 then
             timer.resume(timer_.bolsstats)
         elseif number_.bossing == 0 then
@@ -1020,7 +995,6 @@ if event.phase == "began" then
         end
         
     elseif hit.damage == 0 and hit.myname == "bigmaster" then
-        
         number_.score = number_.score + 500
         number_.deadmon = number_.deadmon + 1
         dead[number_.deadmon] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
@@ -1037,7 +1011,6 @@ if event.phase == "began" then
         audio.play(external.sfx.splat)
         --audio.play( external.sfx.sound_1)
     elseif hit.damage == 0 and hit.myname == "human" then
-        
         number_.score = number_.score + 500
         number_.deadmon = number_.deadmon + 1
         dead[number_.deadmon] = external.sprite.newSprite(external.spritefactory.spritedeadhuman)
@@ -1088,8 +1061,19 @@ function functions.mobstart (event)
         monsters[number_.monster].id = "runner 4"   
 
     end
-monsters[number_.monster].y = -50
-monsters[number_.monster].x = (math.random(50,display.contentWidth - 50))
+monsters[number_.monster]:setReferencePoint(display.CenterReferencePoint);
+monsters[number_.monster].y = -monsters[number_.monster].height
+
+local locationx = math.random(1,4)
+if locationx == 1 then
+    monsters[number_.monster].x = (display.contentWidth/2) - (display.contentWidth*0.25) + monsters[number_.monster].width 
+elseif locationx == 2 then    
+    monsters[number_.monster].x = monsters[number_.monster].width
+elseif locationx == 3 then
+    monsters[number_.monster].x = (display.contentWidth/2) + (display.contentWidth*0.25) - monsters[number_.monster].width
+elseif locationx == 4 then    
+    monsters[number_.monster].x = display.contentWidth - monsters[number_.monster].width
+end
 monsters[number_.monster].damage = number_.damage  
 external.physics.addBody(monsters[number_.monster] ,{density = 0, bounce = 0,firction = 0})
 monsters[number_.monster].isFixedRotation = true
@@ -1102,23 +1086,20 @@ end
 
 function functions.masterstart (event)
     
-    local mobnum_       = 1--math.random(1,2)
-    number_.monster = number_.monster + 1 
-    monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.alien_1)
-    monsters[number_.monster].y = -80
-    monsters[number_.monster].x = (math.random(50,display.contentWidth - 50))
-    
-    if mobnum_ == 1 then
-
-        monsters[number_.monster]:prepare("alien_1")  
-        monsters[number_.monster]:play()
-        
-    elseif mobnum_ == 2 then
-
-        monsters[number_.monster]:prepare("master_2")  
-        monsters[number_.monster]:play() 
-  
-    end
+number_.monster = number_.monster + 1 
+monsters[number_.monster] =  external.sprite.newSprite(external.spritefactory.alien_1)
+monsters[number_.monster]:setReferencePoint(display.CenterReferencePoint);
+monsters[number_.monster].y = -monsters[number_.monster].height
+local locationx_ = math.random(1,3)
+if locationx_ == 1 then
+    monsters[number_.monster].x = display.contentWidth - monsters[number_.monster].width*2
+elseif locationx_ == 2 then    
+    monsters[number_.monster].x = monsters[number_.monster].width*2
+elseif locationx_ == 3 then
+    monsters[number_.monster].x = (display.contentWidth/2) 
+end
+monsters[number_.monster]:prepare("alien_1")  
+monsters[number_.monster]:play()
 monsters[number_.monster].id = "master" 
 monsters[number_.monster].damage = number_.masdamage 
 external.physics.addBody(monsters[number_.monster] ,{density = 0, bounce = 0,firction = 0})
@@ -1397,7 +1378,7 @@ end
 
 if number_.mastermon == 0 and bol.masrun == true then
     bol.masrun = false   
-    timer_.human_2 = timer.performWithDelay(5000, functions.helphuman_2, 3)
+    timer_.human_2 = timer.performWithDelay(7000, functions.helphuman_2, 1)
     bol.human_2 = true
 end
 
@@ -1422,7 +1403,7 @@ if number_.mastermon <= (params.mastermon/2) and bol.bigrun == false then
     audio.fade({channel=19, time=3000, volume=0.5})
     end
     bol.bigrun = true
-    timer_.human = timer.performWithDelay(5000, functions.helphuman, 3)
+    timer_.human = timer.performWithDelay(10000, functions.helphuman, 3)
     bol.human = true
 end
 
@@ -2423,7 +2404,6 @@ if ((event.object1.myname == "beam" and event.object2.myname == "runnerers") or
             event.object2:removeSelf()
             event.object2.myname = nil
     end
-    game_.killed = game_.killed + 1
  
 end
 
@@ -2601,7 +2581,7 @@ finger.alpha = 0
 finger:scale( 2, 2)
 group[3]:insert(finger)
 
-function taptutorial(event)
+function functions.taptutorial(event)
     if fing == true then
         transition.cancel (fingermove)
     end
@@ -2635,7 +2615,7 @@ function taptutorial(event)
         finger:removeSelf()
         finger = nil
         texttap:removeSelf()
-        texttap = ni
+        texttap = nil
         local function endtutoria (event)
                     game_.tutorial = "true"
                     timer.performWithDelay(500, function()
@@ -2671,7 +2651,7 @@ function taptutorial(event)
                      count_ = count_ + 1   
                     end,4)
 
-                    local path = system.pathForFile("records.sqlite",system.ResourceDirectory  )
+                    local path = system.pathForFile("records.db",system.DocumentsDirectory  )
                     db = sqlite3.open( path )  
                     local tablesave_1 = [[UPDATE button SET tutorial =']]..game_.tutorial..[[' WHERE id =]]..1
                     db:exec( tablesave_1) 
@@ -2685,25 +2665,25 @@ function taptutorial(event)
     end
 end
 
-function fingermoving_ (objecter_)
+function functions.fingermoving_ (objecter_)
 --group[2]:insert(texttap)lay.contentHeight - 100  
 fing = false
-fingermove = transition.to(finger,{x = w_+20 ,y = display.contentHeight - 100 ,delay = 500,time = 500,onComplete = fingermoving}) 
+fingermove = transition.to(finger,{x = w_+20 ,y = display.contentHeight - 100 ,delay = 500,time = 500,onComplete = functions.fingermoving}) 
 fing = true
 end 
 
 local tappings = false
-function fingermoving (objecter_)
+function functions.fingermoving (objecter_)
 texttap:setText("TAP TO KILL THE ALIEN")
 texttap:setReferencePoint(display.CenterReferencePoint);
 texttap.x = w_+20 ;
 texttap.alpha = 1
  if tappings == false then
-    monsters[number_.monster]:addEventListener("touch",taptutorial) 
+    monsters[number_.monster]:addEventListener("touch",functions.taptutorial) 
      tappings = true
  end
 fing = false
-fingermove = transition.to(finger,{x = monsters[number_.monster].x+20 ,y = monsters[number_.monster].y + 100,delay = 500,time = 500,onComplete = fingermoving_}) 
+fingermove = transition.to(finger,{x = monsters[number_.monster].x+20 ,y = monsters[number_.monster].y + 100,delay = 500,time = 500,onComplete = functions.fingermoving_}) 
 fing = true
 end
 local function starttutorial_ (event)
@@ -2717,7 +2697,7 @@ monsters[number_.monster]:play()
 monsters[number_.monster].id = "tutorial"  
 monsters[number_.monster].y = -50
 monsters[number_.monster].x = display.contentWidth / 2 
-monster_s = transition.to(monsters[number_.monster],{y = display.contentHeight /2 ,delay = 500,time = 2500,onComplete = fingermoving})
+monster_s = transition.to(monsters[number_.monster],{y = display.contentHeight /2 ,delay = 500,time = 2500,onComplete = functions.fingermoving})
 monsters_ = true
 group[2]:insert(monsters[number_.monster])
 
