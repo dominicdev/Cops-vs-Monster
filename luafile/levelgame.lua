@@ -2650,12 +2650,9 @@ function functions.taptutorial(event)
 
                      count_ = count_ + 1   
                     end,4)
-
-                    local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-                    db = sqlite3.open( path )  
+ 
                     local tablesave_1 = [[UPDATE button SET tutorial =']]..game_.tutorial..[[' WHERE id =]]..1
-                    db:exec( tablesave_1) 
-                    db:close()
+                    external.adshow.db:exec( tablesave_1) 
         end
         
         timer.performWithDelay(1000, function() 

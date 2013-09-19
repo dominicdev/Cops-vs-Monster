@@ -34,6 +34,7 @@ end
 
 local function none ()
     
+return true
 end
 
 local function shakingeffect ()
@@ -1406,8 +1407,6 @@ for i = 1, #monsters do
     end
 end    
     
-local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-db = external.sqlite3.open(path) 
 if game_.stage == 20 and game_.level == 1 then
 game_.level = game_.level + 1  
 game_.leveltemp = game_.leveltemp + 1
@@ -1425,7 +1424,7 @@ local row
 local sql
 sql = "SELECT * FROM button WHERE level="..game_.level.." AND id ="..game_.stage;
 print(sql)
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
 
 number_.movnum      = tonumber(row.movnum)
 number_.monsternum  = tonumber(row.monsternum)
@@ -3092,12 +3091,10 @@ function functions.taptutorial(event)
                         end
                      count_ = count_ + 1   
                     end,4)
-
-                    local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-                    db = sqlite3.open( path )  
+ 
                     local tablesave_1 = [[UPDATE button SET tutorial =']]..game_.tutorial..[[' WHERE id =]]..1
-                    db:exec( tablesave_1) 
-                    db:close()
+                    external.adshow.db:exec( tablesave_1) 
+                   
         end
         
         timer.performWithDelay(1000, function() 

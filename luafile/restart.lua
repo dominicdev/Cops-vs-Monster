@@ -1,5 +1,4 @@
-
-display.setStatusBar(display.HiddenStatusBar)
+local external = require "luafile.external"
 local storyboard = require "storyboard"
 local scene = storyboard.newScene()
 local group
@@ -35,14 +34,9 @@ adshow.loading("hide")
 storyboard.purgeScene("luafile.game") 
 storyboard.removeAll()
 local numvolume = event.params
-
-local path = system.pathForFile("records.db", system.DocumentsDirectory )
-db = sqlite3.open( path ) 
---print(path)
-
 sql = "SELECT * FROM item";
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
     
 print(row.car.." "..row.barrel.." "..row.laser.." "..row.coin)
 carnum    = row.car
@@ -57,7 +51,6 @@ tick      = row.tick
 
 end
 
-db:close()
 --print("db closed")
 
 local option = {

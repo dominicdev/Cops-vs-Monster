@@ -1,10 +1,5 @@
-
-display.setStatusBar(display.HiddenStatusBar)
-local sqlite3       = require ("sqlite3")
-local widget        = require "widget"
+local external      = require "luafile.external"
 local storyboard    = require "storyboard"
-local adshow        = require "luafile.adshow"
-local sfx           = require "luafile.sfx"
 local scene         = storyboard.newScene()
 local w             = display.contentWidth / 2
 local h             = display.contentHeight / 2
@@ -20,28 +15,26 @@ local onTouched_
 local function onSceneTouch(event)
 switch = event.targe
 -- open SQLite database, if it doesn't exist, create database
-local path = system.pathForFile("records.db", system.DocumentsDirectory )
-db = sqlite3.open( path ) 
 --print(path)
 
 -- setup the table if it doesn't exist
 local tablesetup = "CREATE TABLE IF NOT EXISTS records (id INTEGER PRIMARY KEY, name, score,time, car, barrel,total,level,lives);"
-db:exec( tablesetup )
+external.adshow.db:exec( tablesetup )
 --print(tablesetup)
 
 -- save student data to database
 local tablefill =[[INSERT INTO records VALUES (NULL,']] .. name.text .. [[',']] .. number[1] .. [[',']].. number[2] .. [[',']] .. number[3] .. [[',']].. number[4] .. [[',']].. number[5] ..[[',']].. number[9] ..[[');]]
-db:exec(tablefill)
+external.adshow.db:exec(tablefill)
 --print(tablefill )
 
 local tablesave = [[UPDATE item SET car=']].. number[3] ..[[',barrel=']]..number[4]..[[',laser=']]..number[8]..[[',coin=']]..number[7]..[[',event=']]..stats.gametype..[[' WHERE id = 1]]
-db:exec( tablesave )
+external.adshow.db:exec( tablesave )
 --print(tablesave)
 --number[10]..
 --close database
-db:close()
+external.adshow.db:close()
 --print("db closed")
-audio.play(sfx.clicksound)          
+audio.play(external.sfx.clicksound)          
 local scenefrom = 
             {
             effect = "fade",
@@ -58,7 +51,7 @@ end
 
 local function cancelstats (event)
 if event.keyName == "back" and event.phase == "down" then
-    audio.play(sfx.clicksound)
+    audio.play(external.sfx.clicksound)
     local function onComplete (event)
         if "clicked" == event.action then
             local t = event.index
@@ -217,7 +210,7 @@ dis[7]:setTextColor(0, 204, 0 )
 dis[7]:setEmbossColor( color )
 group[2]:insert(dis[7])
 
-dis[10] = widget.newButton
+dis[10] = external.widget.newButton
         {
             defaultFile     = "button/woodbutton/nextbtn.png",
             overFile        = "button/woodbutton/nextbtnover.png",
@@ -240,7 +233,7 @@ Runtime:addEventListener( "touch", onTouched_ )
 
 ----adshow.inneractive ("show")
 timer.performWithDelay(1000, function ()
-adshow.loading("hide") 
+external.adshow.loading("hide") 
 end, 1)
 end
 
@@ -250,7 +243,7 @@ Runtime:removeEventListener( "touch", onTouched_ )
 Runtime:removeEventListener( "key", cancelstats );
 group[2]:removeSelf()
 group[2] = nil
-adshow.loading("show")  
+external.adshow.loading("show")  
 end
 
 function scene:destroyScene( event )

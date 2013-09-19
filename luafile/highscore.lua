@@ -69,10 +69,7 @@ group = {
         surgroup = display.newGroup(),
         rushgroup= display.newGroup(),
         }
-local devname = system.getInfo( "model" )
-
-local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-db = external.sqlite3.open( path ) 
+        
 if display.contentHeight > 960 then
     numbers = display.contentHeight -1200
     numbers_ =  display.contentHeight - 580 
@@ -133,12 +130,12 @@ local function onComplete(event)
                 count = 0
                 sql = "DELETE FROM records"
                 sql_1 = "DELETE FROM records2"
-                for row in db:nrows(sql) do
+                for row in external.adshow.db:nrows(sql) do
                     count = count + 1
 
                 end
                 count = 0
-                for row in db:nrows(sql_1) do
+                for row in external.adshow.db:nrows(sql_1) do
                     count = count + 1
 
                 end
@@ -179,7 +176,7 @@ rowplace = numbers
 count = 0
 sql = "SELECT * FROM records WHERE event = 'survival' ORDER BY total DESC ";
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
     count = count + 1
     fullnamet[count] = display.newText(count..".Score: "..row.total, 0,0,"BadaBoom BB",40)
     fullnamet[count]:setReferencePoint(display.CenterLeftReferencePoint)
@@ -206,7 +203,7 @@ rowplace = numbers
 count = 0
 sql = "SELECT * FROM records2 ORDER BY score DESC ";
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
 count = count + 1
 fullnamet_1[count] = display.newText(count..".Score: "..row.score, 0,0,"BadaBoom BB",40)
 fullnamet_1[count]:setReferencePoint(display.CenterLeftReferencePoint)
@@ -352,7 +349,6 @@ group.surgroup:removeSelf()
 group.surgroup = nil
 group.rushgroup:removeSelf()
 group.rushgroup = nil
-db:close()
 end
 
 function scene:destroyScene( event )

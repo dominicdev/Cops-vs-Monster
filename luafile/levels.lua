@@ -1,9 +1,5 @@
 local external   = require "luafile.external"
 local storyboard = require "storyboard"
---local adshow     = require "luafile.adshow"
---local widget     = require "widget"
---local sfx        = require "luafile.sfx"
---local sqlite3    = require "sqlite3"
 local scene      = storyboard.newScene()
 local w_         = display.contentWidth / 2
 local h_         = display.contentHeight / 2 
@@ -144,13 +140,10 @@ level = numvolume.level
 local x_ = 0
 local y_ = 0
 
-local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-db = external.sqlite3.open( path ) 
-
 count = 0
 sql = "SELECT * FROM button WHERE level="..level;
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
 
 count = count + 1
 
@@ -245,7 +238,7 @@ end
 
 sql = "SELECT * FROM item WHERE id="..1;
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
     powers.laser = row.laser
     powers.car   = row.car
     powers.barrel = row.barrel
@@ -291,7 +284,6 @@ end
 
 function scene:exitScene( event )
 --external.adshow.loading("show")  
-db:close() 
 if goto == "start" then 
 --external.adshow.loading("show")    
 end

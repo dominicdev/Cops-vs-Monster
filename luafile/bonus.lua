@@ -1,10 +1,4 @@
 local external      = require "luafile.external"
-local adshow        = external.adshow
-local widget        = external.widget
-local sprite        = external.sprite
-local spritefactory = external.spritefactory
-local sqlite3       = external.sqlite3
-local sfx           = external.sfx
 local storyboard    = require "storyboard"
 local scene     = storyboard.newScene()
 local w_        = display.contentWidth / 2
@@ -36,7 +30,7 @@ local pop_3
 local pop_4
 local color
 local sql
-
+local row
 local function none (event)
 
 return true
@@ -136,21 +130,18 @@ isPaused = nil
 
 num.coin = math.modf(num.monkill/3)
 num.coin = num.coin * num.addcoin
-local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-db = sqlite3.open( path )  
 
 local coin
 sql = "SELECT * FROM item";
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
 coin = row.coin
 end
 coin = coin + num.coin
 
 local addcoin = [[UPDATE item SET coin=']]..coin..[[' WHERE id = 1]]
-db:exec( addcoin )
+external.adshow.db:exec( addcoin )
 print(addcoin)
 
-db:close()
 
 display_.overscreen = display.newImageRect("background/gameover.png",display.contentWidth - 200,300)
 display_.overscreen:setReferencePoint(display.TopCenterReferencePoint)
@@ -159,7 +150,7 @@ display_.overscreen.y = h_ - 250
 display_.overscreen.alpha = 0
 group.group_6:insert(display_.overscreen)
 
-display_.restartbutton = widget.newButton
+display_.restartbutton = external.widget.newButton
     {
         defaultFile     = "button/woodbutton/playagainbtn.png",
         overFile        = "button/woodbutton/playagainbtnover.png",
@@ -174,7 +165,7 @@ display_.restartbutton.y = display_.overscreen.y + display_.overscreen.height + 
 display_.restartbutton.alpha = 0
 group.group_6:insert(display_.restartbutton)
 
-display_.quitbutton = widget.newButton
+display_.quitbutton = external.widget.newButton
     {
         defaultFile     = "button/woodbutton/menubtn.png",
         overFile        = "button/woodbutton/menubtnover.png",
@@ -253,12 +244,9 @@ display_.cointext:setEmbossColor( color )
 
 local function savename (event)
     if event.phase == "ended" then
-        local path = system.pathForFile("records.db", system.DocumentsDirectory )
-        db = sqlite3.open( path ) 
         local tablefill =[[INSERT INTO records2 VALUES (NULL,']] ..display_.textname.text.. [[',']] .. num.score .. [[',']].. map.dif ..[[');]]
-        db:exec(tablefill)
+        external.adshow.db:exec(tablefill)
         print(tablefill)
-        db:close()
         display_.textname:removeSelf()
         display_.textname = nil
         display_.savebutton:removeSelf()
@@ -279,7 +267,7 @@ display_.textname.inputType = "default"
 display_.textname:setTextColor( 0, 0, 0, 255 )
 group.group_6:insert(display_.textname)
 
-display_.savebutton = widget.newButton
+display_.savebutton = external.widget.newButton
     {
         defaultFile     = "button/woodbutton/save.png",
         overFile        = "button/woodbutton/saveover.png",
@@ -321,7 +309,7 @@ local function pauseallgame (event)
             display_.pausescreen.y = h_ - 220
             group.group_6:insert(display_.pausescreen)
 
-            display_.restartbutton = widget.newButton
+            display_.restartbutton = external.widget.newButton
                 {
                     defaultFile     = "button/woodbutton/playagainbtn.png",
                     overFile        = "button/woodbutton/playagainbtnover.png",
@@ -335,7 +323,7 @@ local function pauseallgame (event)
             display_.restartbutton.y = display_.pausescreen.y + display_.pausescreen.height + 50
             group.group_6:insert(display_.restartbutton)
 
-            display_.quitbutton = widget.newButton
+            display_.quitbutton = external.widget.newButton
                 {
                     defaultFile     = "button/woodbutton/menubtn.png",
                     overFile        = "button/woodbutton/menubtnover.png",
@@ -349,7 +337,7 @@ local function pauseallgame (event)
             display_.quitbutton.y = display_.pausescreen.y + display_.pausescreen.height + 50
             group.group_6:insert(display_.quitbutton)
 
-             display_.pausebutton = widget.newButton
+             display_.pausebutton = external.widget.newButton
                 {
                     defaultFile     = "button/orange/playtap.png",
                     overFile        = "button/orange/pause.png",
@@ -479,7 +467,7 @@ local function pauseallgame (event)
             display_.restartbutton = nil
             display_.pausescreen:removeSelf()
             display_.pausescreen = nil
-            display_.pausebutton = widget.newButton
+            display_.pausebutton = external.widget.newButton
             {
                 defaultFile     = "button/orange/pause.png",
                 overFile        = "button/orange/pausetap.png",
@@ -553,7 +541,7 @@ function killthemall (event)
         local phase = event.phase
         
         if phase == "began" and (target.id == "goor_line_1" or target.id == "guz_line_1" or target.id == "giz_line_1") then
-            audio.play(sfx.splat)
+            audio.play(external.sfx.splat)
             if bol.stats1 == true then
             transition.cancel(trans_1.trans1)
             timer.cancel(time_.time_1)
@@ -563,7 +551,7 @@ function killthemall (event)
             num.score = num.score + 100
             num.monkill = num.monkill + 1
             num.tapped = num.tapped + 1
-            alientap[num.tapped] = sprite.newSprite(spritefactory.spritedeadmob)
+            alientap[num.tapped] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
             alientap[num.tapped].x = target.x
             alientap[num.tapped].y = target.y
             if target.id == "goor_line_1" then
@@ -578,7 +566,7 @@ function killthemall (event)
             target:removeSelf()
             target.id = nil
         elseif phase == "began" and (target.id == "goor_line_2"  or target.id == "guz_line_2" or target.id == "giz_line_2") then
-            audio.play(sfx.splat)
+            audio.play(external.sfx.splat)
             if bol.stats2 == true then
                 transition.cancel(trans_1.trans2)
                 timer.cancel(time_.time_2)
@@ -588,7 +576,7 @@ function killthemall (event)
                 num.score = num.score + 100
                 num.monkill = num.monkill + 1
                 num.tapped = num.tapped + 1
-                alientap[num.tapped] = sprite.newSprite(spritefactory.spritedeadmob)
+                alientap[num.tapped] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
                 alientap[num.tapped].x = target.x
                 alientap[num.tapped].y = target.y
             if target.id == "goor_line_2" then
@@ -603,7 +591,7 @@ function killthemall (event)
             target:removeSelf()
             target.id = nil
         elseif phase == "began" and (target.id == "goor_line_3" or target.id == "guz_line_3" or target.id == "giz_line_3") then
-            audio.play(sfx.splat)
+            audio.play(external.sfx.splat)
             if bol.stats3 == true then
                 transition.cancel(trans_1.trans3)
                 timer.cancel(time_.time_3)
@@ -613,7 +601,7 @@ function killthemall (event)
                 num.score = num.score + 100
                 num.monkill = num.monkill + 1
                 num.tapped = num.tapped + 1
-                alientap[num.tapped] = sprite.newSprite(spritefactory.spritedeadmob)
+                alientap[num.tapped] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
                 alientap[num.tapped].x = target.x
                 alientap[num.tapped].y = target.y
             if target.id == "goor_line_3" then
@@ -628,7 +616,7 @@ function killthemall (event)
             target:removeSelf()
             target.id = nil
         elseif phase == "began" and (target.id == "goor_line_4"  or target.id == "guz_line_4" or target.id == "giz_line_4") then
-            audio.play(sfx.splat)
+            audio.play(external.sfx.splat)
             if bol.stats4 == true then
             transition.cancel(trans_1.trans4)
             timer.cancel(time_.time_4)
@@ -638,7 +626,7 @@ function killthemall (event)
             num.score = num.score + 100
             num.monkill = num.monkill + 1
             num.tapped = num.tapped + 1
-            alientap[num.tapped] = sprite.newSprite(spritefactory.spritedeadmob)
+            alientap[num.tapped] = external.sprite.newSprite(external.spritefactory.spritedeadmob)
             alientap[num.tapped].x = target.x
             alientap[num.tapped].y = target.y
         if target.id == "goor_line_4" then
@@ -653,7 +641,7 @@ function killthemall (event)
         target:removeSelf()
         target.id = nil
         elseif phase == "began" and target.id == "human_line_1" then
-        audio.play(sfx.humanfail)
+        audio.play(external.sfx.humanfail)
             if bol.stats1 == true then
                 transition.cancel(trans_1.trans1)
                 timer.cancel(time_.time_1)
@@ -663,7 +651,7 @@ function killthemall (event)
             bol.trans_1 = false  
             bol.stats1 = false
         elseif phase == "began" and target.id == "human_line_2" then        
-            audio.play(sfx.humanfail)
+            audio.play(external.sfx.humanfail)
             if bol.stats2 == true then
                 transition.cancel(trans_1.trans2)
                 timer.cancel(time_.time_2)
@@ -673,7 +661,7 @@ function killthemall (event)
             bol.trans_2 = false  
             bol.stats2 = false
         elseif phase == "began" and target.id == "human_line_3" then 
-            audio.play(sfx.humanfail)
+            audio.play(external.sfx.humanfail)
             if bol.stats3 == true then
                 transition.cancel(trans_1.trans3)
                 timer.cancel(time_.time_3)
@@ -683,7 +671,7 @@ function killthemall (event)
             bol.trans_3 = false 
             bol.stats3 = false
         elseif phase == "began" and target.id == "human_line_4" then 
-            audio.play(sfx.humanfail)
+            audio.play(external.sfx.humanfail)
             if bol.stats4 == true then
                 transition.cancel(trans_1.trans4)
                 timer.cancel(time_.time_4)
@@ -693,7 +681,7 @@ function killthemall (event)
             bol.trans_4 = false 
             bol.stats4 = false
         elseif phase == "began" and target.id == "clock_line_1" then
-            audio.play(sfx.sound_10)
+            audio.play(external.sfx.sound_10)
             if bol.stats1 == true then
                 transition.cancel(trans_1.trans1)
                 timer.cancel(time_.time_1)
@@ -704,7 +692,7 @@ function killthemall (event)
             target:removeSelf()
             target.id = nil
         elseif phase == "began" and target.id == "clock_line_2" then
-            audio.play(sfx.sound_10)
+            audio.play(external.sfx.sound_10)
             if bol.stats2 == true then
                 transition.cancel(trans_1.trans2)
                 timer.cancel(time_.time_2)
@@ -715,7 +703,7 @@ function killthemall (event)
             target:removeSelf()
             target.id = nil
         elseif phase == "began" and target.id == "clock_line_3" then
-            audio.play(sfx.sound_10)
+            audio.play(external.sfx.sound_10)
             if bol.stats3 == true then
                 transition.cancel(trans_1.trans3)
                 timer.cancel(time_.time_3)
@@ -726,7 +714,7 @@ function killthemall (event)
             target:removeSelf()
             target.id = nil
         elseif phase == "began" and target.id == "clock_line_4" then
-            audio.play(sfx.sound_10)
+            audio.play(external.sfx.sound_10)
             if bol.stats4 == true then
                 transition.cancel(trans_1.trans4)
                 timer.cancel(time_.time_4)
@@ -1212,7 +1200,7 @@ end
 local count_ = 0
 timer.performWithDelay( 2000, function() 
     if params.scenename == "mainrestart" or params.scenename == "gametype" then
-        adshow.loading("hide")
+        external.adshow.loading("hide")
     end
 local function countstart (event)
     if event.phase == "ended" then
@@ -1221,25 +1209,25 @@ local function countstart (event)
             display_.count:setText("R E A D Y")
             display_.count:setReferencePoint(display.CenterReferencePoint);
             display_.count.x = w_ ; 
-            audio.play(sfx.star)
+            audio.play(external.sfx.star)
         elseif count_ == 1 then
             display_.count:setText("S E T")
             display_.count:setReferencePoint(display.CenterReferencePoint);
             display_.count.x = w_ ;
-            audio.play(sfx.star)
+            audio.play(external.sfx.star)
         elseif count_ == 2 then
             display_.count:setText("G O")
             display_.count:setReferencePoint(display.CenterReferencePoint);
             display_.count.x = w_ ;
-            audio.play(sfx.star)
+            audio.play(external.sfx.star)
         elseif count_ == 3 then
             display_.count:setText("Game On!")
             display_.count:setReferencePoint(display.CenterReferencePoint);
             display_.count.x = w_ ;
             display_.count.id = event.target.id
             transition.to(display_.count,{alpha = 0,time = 500,onComplete = removecounttext})
-            audio.play(sfx.sound_9)
-            audio.play( sfx.sound_13,{loops= -1,channel = 18} )
+            audio.play(external.sfx.sound_9)
+            audio.play( external.sfx.sound_13,{loops= -1,channel = 18} )
             audio.setVolume( 0.4, { channel=18} )
             Runtime:removeEventListener( "key", none )
             Runtime:addEventListener( "key", pauseallgame )
@@ -1290,7 +1278,7 @@ display_.minibg.x = display.contentWidth / 2
 display_.minibg.y = display.contentHeight / 2
 group.group_6:insert(display_.minibg)
 
-display_.mediumbutton = widget.newButton
+display_.mediumbutton = external.widget.newButton
 {
     defaultFile     = "items/medium.png",
     overFile        = "items/mediumover.png",
@@ -1304,7 +1292,7 @@ display_.mediumbutton.x = w_
 display_.mediumbutton.y = h_
 group.group_6:insert(display_.mediumbutton)
 
-display_.easybutton = widget.newButton
+display_.easybutton = external.widget.newButton
 {
     defaultFile     = "items/easy.png",
     overFile        = "items/easyover.png",
@@ -1319,7 +1307,7 @@ display_.easybutton.y = display_.mediumbutton.y - 30 - (display_.mediumbutton.he
 group.group_6:insert(display_.easybutton)
 
 
-display_.hardbutton = widget.newButton
+display_.hardbutton = external.widget.newButton
 {
     defaultFile     = "items/hard.png",
     overFile        = "items/hardover.png",
@@ -1334,7 +1322,7 @@ display_.hardbutton.y = (display_.mediumbutton.height/2) + display_.mediumbutton
 group.group_6:insert(display_.hardbutton)
 end,1)
 
-display_.pausebutton = widget.newButton
+display_.pausebutton = external.widget.newButton
 {
     defaultFile     = "button/orange/pause.png",
     overFile        = "button/orange/pausetap.png",
@@ -1358,7 +1346,7 @@ Runtime:addEventListener( "key", none )
 end
 
 function scene:exitScene(event)
-adshow.loading("show")     
+external.adshow.loading("show")     
 Runtime:removeEventListener( "touch", onTouched_ )
 Runtime:removeEventListener( "key", pauseallgame )
 Runtime:removeEventListener("enterFrame", updatestats)

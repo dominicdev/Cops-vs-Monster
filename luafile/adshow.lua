@@ -2,7 +2,7 @@ local adshow = {}
 local loadingscreen
 local loadingwid
 local widget = require "widget"
-local sqlite3    = require "sqlite3"
+local sqlite3 = require "sqlite3"
 local w_ = display.contentWidth / 2
 local h_ = display.contentHeight / 2 
 local file
@@ -131,9 +131,12 @@ end
 
 adshow.sqlload = false
 function adshow.loadsql  ()
-    
-local path = system.pathForFile("records.db", system.DocumentsDirectory )
-file = io.open( path)
+ 
+end
+
+   
+adshow.path = system.pathForFile("records.db", system.DocumentsDirectory )
+file = io.open( adshow.path)
    if( file == nil )then
        print("NO FILE")
    	-- Doesn't Already Exist, So Copy it In From Resource Directory                          
@@ -150,10 +153,9 @@ file = io.open( path)
    else
       print("FILE Already Exist")
    end
-db = sqlite3.open( path )
-db:close()
+adshow.db = sqlite3.open( adshow.path )
 
-end
+
 
 local _H = display.contentHeight
 local _W = display.contentWidth

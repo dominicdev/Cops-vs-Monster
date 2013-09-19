@@ -90,14 +90,12 @@ local function onSceneTouch(event)
         --adstatus.hideads ()
     if switch.id == "survival" and switch.stats == "unlocked" and event.phase == "ended" then
         
-        local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-        db = external.sqlite3.open( path ) 
         level = 1
         count = 0
         local id = 1
         sql = "SELECT * FROM button WHERE level="..level.." AND id ="..id;
 
-        for row in db:nrows(sql) do
+        for row in external.adshow.db:nrows(sql) do
 
         count = count + 1
         print(row.id)
@@ -232,14 +230,11 @@ storyboard.purgeAll()
 storyboard.removeAll() 
 numvolume = event.params
 local y_ = 0
-local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-db = external.sqlite3.open( path ) 
-
 scenestats = true
 count = 0
 sql = "SELECT * FROM gamestats ";
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
 
 count = count + 1
 
@@ -340,7 +335,6 @@ external.adshow.calltapfortap("hide")
 Runtime:removeEventListener( "key", none_1 )
 object_:removeSelf()
 object_ = nil 
-db:close() 
 end
 
 function scene:destroyScene( event )

@@ -1,10 +1,6 @@
-
-display.setStatusBar(display.HiddenStatusBar)
+local external   = require "luafile.external"
 local storyboard = require "storyboard"
 local scene      = storyboard.newScene()
-local adshow     = require "luafile.adshow"
-local sfx        = require "luafile.sfx"
-local sqlite3    = require "sqlite3"
 local group
 local params
 local stageset
@@ -41,14 +37,12 @@ powers = {
             car   = nil,
             barrel= nil,
             }
-adshow.loading("hide") 
-local path = system.pathForFile("records.db",system.DocumentsDirectory  )
-db = sqlite3.open( path )  
+external.adshow.loading("hide")  
 sql = "SELECT * FROM item";
 
 if params.name ~= "restartbonus" then
 
-for row in db:nrows(sql) do
+for row in external.adshow.db:nrows(sql) do
 coin = row.coin
 end
 stageset = params.stage  
@@ -139,14 +133,14 @@ level = params.level
 rowid = params.rowid
 star  = params.star
 local tablesave = [[UPDATE button SET score =']]..score..[[',star=']]..star..[[' WHERE rowid =']]..rowid..[[']]..[[AND level =]]..level..[[]];
-db:exec( tablesave )
+external.adshow.db:exec( tablesave )
 
 unlocking = rowid + 1
 local tablesave_ = [[UPDATE button SET stats =']]..unlocked..[[' WHERE rowid =']]..unlocking..[[']]..[[AND level =]]..level..[[]];
-db:exec( tablesave_ )
+external.adshow.db:exec( tablesave_ )
 
 local addcoin = [[UPDATE item SET coin=']]..coin..[[' WHERE id = 1]]
-db:exec( addcoin )
+external.adshow.db:exec( addcoin )
 
         if rowid == 20 and level == 1 then
 
@@ -155,15 +149,15 @@ db:exec( addcoin )
             local row = rowid + 1
 
             local tablesave_1 = [[UPDATE button SET stats =']]..unlocked..[[' WHERE rowid =']]..row..[[']]..[[AND level =]]..levelupdate..[[]];
-            db:exec( tablesave_1)
+            external.adshow.db:exec( tablesave_1)
 
             local tablesave_2 = [[UPDATE gamestats SET stats =']]..unlocked..[[' WHERE gametype =']]..openlevel..[[']]
-            db:exec( tablesave_2)   
+            external.adshow.db:exec( tablesave_2)   
 
             local openlevel = "survival"
 
             local tablesave_1 = [[UPDATE gamestats SET stats =']]..unlocked..[[' WHERE gametype =']]..openlevel..[[']]
-            db:exec( tablesave_1) 
+            external.adshow.db:exec( tablesave_1) 
 
             local scenefrom = {
                                 effect  = "fade",
@@ -182,7 +176,7 @@ db:exec( addcoin )
             local openlevel = "bonus"
 
             local tablesave_1 = [[UPDATE gamestats SET stats =']]..unlocked..[[' WHERE gametype =']]..openlevel..[[']]
-            db:exec( tablesave_1) 
+            external.adshow.db:exec( tablesave_1) 
 
             local scenefrom = {
                                 effect  = "fade",
@@ -198,11 +192,11 @@ db:exec( addcoin )
         else
 
             local tablesave = [[UPDATE item SET car=']].. params.car ..[[',barrel=']]..params.barrel..[[',laser=']]..params.laser..[[' WHERE id = 1]]
-            db:exec( tablesave )
+            external.adshow.db:exec( tablesave )
             print(tablesave)
             sql = "SELECT * FROM item WHERE id="..1;
 
-        for row in db:nrows(sql) do
+        for row in external.adshow.db:nrows(sql) do
             powers.laser = row.laser
             powers.car   = row.car
             powers.barrel = row.barrel
@@ -210,7 +204,7 @@ db:exec( addcoin )
         end
             local scenefrom 
             sql = "SELECT * FROM button WHERE id="..unlocking.." AND level ="..params.level;
-            for row in db:nrows(sql) do
+            for row in external.adshow.db:nrows(sql) do
             scenefrom = {
                         effect  = "fade",
                         time    = 1000,
@@ -255,14 +249,14 @@ db:exec( addcoin )
         star  = params.star
 
         local tablesave = [[UPDATE button SET score =']]..score..[[',star=']]..star..[[' WHERE rowid =']]..rowid..[[']]..[[AND level =]]..level..[[]];
-        db:exec( tablesave )
+        external.adshow.db:exec( tablesave )
 
         unlocking = rowid + 1
         local tablesave_ = [[UPDATE button SET stats =']]..unlocked..[[' WHERE rowid =']]..unlocking..[[']]..[[AND level =]]..level..[[]];
-        db:exec( tablesave_ )
+        external.adshow.db:exec( tablesave_ )
 
         local addcoin = [[UPDATE item SET coin=']]..coin..[[' WHERE id = 1]]
-        db:exec( addcoin )
+        external.adshow.db:exec( addcoin )
 
             if rowid == 20 and level == 1 then
 
@@ -271,14 +265,14 @@ db:exec( addcoin )
             local row = rowid + 1
 
             local tablesave_1 = [[UPDATE button SET stats =']]..unlocked..[[' WHERE rowid =']]..row..[[']]..[[AND level =]]..levelupdate..[[]];
-            db:exec( tablesave_1)
+            external.adshow.db:exec( tablesave_1)
 
             local tablesave_2 = [[UPDATE gamestats SET stats =']]..unlocked..[[' WHERE gametype =']]..openlevel..[[']]
-            db:exec( tablesave_2) 
+            external.adshow.db:exec( tablesave_2) 
 
             local openlevel_1 = "survival"
             local tablesave_3 = [[UPDATE gamestats SET stats =']]..unlocked..[[' WHERE gametype =']]..openlevel_1..[[']]
-            db:exec( tablesave_3) 
+            external.adshow.db:exec( tablesave_3) 
             local scenefrom = {
                         effect  = "fade",
                         time    = 1000,
@@ -296,7 +290,7 @@ db:exec( addcoin )
             local openlevel = "bonus"
 
             local tablesave_1 = [[UPDATE gamestats SET stats =']]..unlocked..[[' WHERE gametype =']]..openlevel..[[']]
-            db:exec( tablesave_1) 
+            external.adshow.db:exec( tablesave_1) 
 
             local scenefrom = {
                                 effect  = "fade",
@@ -312,7 +306,7 @@ db:exec( addcoin )
             else
                 print(params.laser)
             local tablesave = [[UPDATE item SET car=']].. params.car ..[[',barrel=']]..params.barrel..[[',laser=']]..params.laser..[[' WHERE id = 1]]
-            db:exec( tablesave )
+            external.adshow.db:exec( tablesave )
            -- print(tablesave)
             sql = "SELECT * FROM item WHERE id="..1;                
 
@@ -327,7 +321,7 @@ db:exec( addcoin )
                                     }
                                 }
             storyboard.gotoScene( "luafile.levels",scenefrom)   
-            audio.play(sfx.backmusic,{loops = 99,channel = 1})
+            audio.play(external.sfx.backmusic,{loops = 99,channel = 1})
             end
 elseif params.name == "restartbonus" then
 
@@ -346,8 +340,7 @@ end
 end
 
 function scene:exitScene( event )
-adshow.loading("show") 
-db:close()
+external.adshow.loading("show") 
 end
 
 function scene:destroyScene( event )
